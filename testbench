@@ -1,0 +1,65 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 07/30/2024 07:44:59 PM
+// Design Name: 
+// Module Name: ram_64_tb
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module ram_64_tb();
+reg clk,rst,wr_en,rd_en;
+reg [5:0]addr;
+reg [7:0]din;
+wire [7:0]dout;
+wire error;
+ram_16_64 dut(clk,rst,wr_en,rd_en,addr,din, dout,error);
+initial
+    begin
+       clk=1'b0;
+       forever 
+        #10 clk=~clk;
+     end
+ task reset1();
+      begin
+       @(negedge clk);
+       rst=1'b1;
+       @(negedge clk);
+       rst=1'b0;
+       end
+  endtask
+  task inputs(input er_en1,rd_en1,input [5:0]addr1,input [7:0]din1);
+  begin
+  wr_en=er_en1;
+  rd_en=rd_en1;
+  addr=addr1;
+  din=din1;
+  end
+  endtask
+  initial
+      begin
+        reset1();
+        inputs(1,0,6'b00010,8'b1100101);
+        #100;
+         inputs(0,1,6'b00010,8'b1100101);
+        end
+     initial
+     begin
+      $monitor("input wr_en=%b,rd_en=%b,rst=%b,addr=%b,output dout=%b,error=%b",wr_en,rd_en,rst,addr,dout,error);
+      #200 $finish;
+      end
+ 
+endmodule
