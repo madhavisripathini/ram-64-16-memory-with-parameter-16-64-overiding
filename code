@@ -1,0 +1,55 @@
+module ram_16_64(
+     input clk,
+     input rst,
+     input wr_en,
+     input rd_en,
+     input [5:0] addr,
+     input [15:0] din,
+     output  [15:0] dout,
+     output  error
+ );
+     ram_64_16 #(64,16, 4) r1(
+         .clk(clk),
+         .rst(rst),
+         .wr_en(wr_en),
+         .rd_en(rd_en),
+         .addr(addr),
+         .din(din),
+         .dout(dout),
+         .error(error)
+     );
+ endmodule
+ 
+ module ram_64_16 #(parameter width = 16, parameter length = 64, parameter address = 6)(
+     input clk,
+     input rst,
+     input wr_en,
+     input rd_en,
+     input [address-1:0] addr,
+     input [width-1:0] din,
+     output reg [width-1:0] dout,
+     output reg error
+ );
+     reg [width-1:0] mem [length-1:0];
+     integer i;
+ 
+     always @(posedge clk or posedge rst) begin
+         if (rst) begin
+             for (i = 0; i < length; i = i + 1) begin
+                 mem[i] <= 0;
+             end
+             dout <= 0;
+             error <= 0;
+         end else if (wr_en && rd_en) begin
+             error <= 1'b1;
+         end else if (wr_en && !rd_en) begin
+             error <= 0;
+             mem[addr] <= din;
+         end else if (rd_en && !wr_en) begin
+             error <= 0;
+             dout <= mem[addr];
+         end
+     end
+ endmodule
+ 
+   
